@@ -1,0 +1,110 @@
+            - name: Close Stale Issues 
+  uses: actions/stale@v9.1.0 
+  with: 
+    # Depo için belirteç. `{{ secrets.GITHUB_TOKEN }}` kullanılarak geçirilebilir. 
+    repo-token: # isteğe bağlı, varsayılan ${{ github.token }} 
+    # Etiketleme sırasında sorun hakkında gönderilecek mesaj. Hiçbiri sağlanmazsa, sorunlar eski olarak işaretlenmeyecektir. 
+    stale-issue-message: # isteğe bağlı 
+    # Etiketleme sırasında çekme isteği hakkında gönderilecek mesaj. Hiçbiri sağlanmazsa, çekme istekleri eski olarak işaretlenmeyecektir. 
+    stale-pr-message: # isteğe bağlı 
+    # Sorun kapatılırken sorun hakkında gönderilecek mesaj. Hiçbiri sağlanmazsa, sorun kapatılırken yorum yapılmayacaktır. 
+    close-issue-message: # isteğe bağlı 
+    # Kapatılırken çekme isteği hakkında gönderilecek mesaj. Hiçbiri sağlanmazsa, çekme istekleri kapatılırken yorum yapılmayacaktır. 
+    close-pr-message: # isteğe bağlı 
+    # Bir sorun veya çekme isteğinin eski olarak işaretlenmesinden önce kaç gün eski olabileceği. Sorunları veya çekme isteklerini otomatik olarak eski olarak işaretlememek için -1 olarak ayarlayın. 
+    days-before-stale: # isteğe bağlı, varsayılan 60 
+    # Bir sorunun eski olarak işaretlenmeden önce kaç gün eski olabileceği. Sorunları otomatik olarak eski olarak işaretlememek için -1 olarak ayarlayın. Yalnızca sorunlarla ilgili olarak "days-before-stale" seçeneğini geçersiz kılın. 
+    days-before-issue-stale: # isteğe bağlı 
+    # Bir çekme isteğinin eski olarak işaretlenmeden önce kaç gün eski olabileceği. Çekme isteklerini otomatik olarak eski olarak işaretlememek için -1 olarak ayarlayın. Yalnızca çekme istekleriyle ilgili olarak "days-before-stale" seçeneğini geçersiz kılın. 
+    days-before-pr-stale: # isteğe bağlı 
+    # Bir sorunun veya çekme isteğinin eski olarak işaretlendikten sonra kapatılması için beklenecek gün sayısı. Eski sorunların veya çekme isteklerinin asla kapatılmaması için -1 olarak ayarlayın. 
+    days-before-close: # isteğe bağlı, varsayılan 7 
+    # Bir sorunun eski olarak işaretlendikten sonra kapatılması için beklenecek gün sayısı. Eski sorunların asla kapatılmaması için -1 olarak ayarlayın. Yalnızca sorunlarla ilgili olarak "kapanmadan-önce-günler" seçeneğini geçersiz kıl. 
+    days-before-issue-close: # isteğe bağlı 
+    # Bayat olarak işaretlendikten sonra bir çekme isteğini kapatmak için beklenecek gün sayısı. Bayat çekme isteklerini asla kapatmamak için -1 olarak ayarlayın. Yalnızca çekme istekleriyle ilgili olarak "kapanmadan-önce-günler" seçeneğini geçersiz kıl. 
+    days-before-pr-close: # isteğe bağlı 
+    # Bir sorun bayat olduğunda uygulanacak etiket. 
+    stale-issue-label: # isteğe bağlı, varsayılan Bayat 
+    # Bir sorun kapatıldığında uygulanacak etiket. 
+    close-issue-label: # isteğe bağlı 
+    # Bir sorunun bayat olarak işaretlenmekten muaf olduğu anlamına gelen etiketler. Birden fazla etiketi virgülle ayırın (örn. "label1,label2"). 
+    exempt-issue-labels: # isteğe bağlı, varsayılan 
+    # Bir sorunu kapatırken kullanılacak neden.
+    close-issue-reason: # isteğe bağlı, varsayılanı not_planned 
+    # Bir çekme isteği bayat olduğunda uygulanacak etiket. 
+    stale-pr-label: # isteğe bağlı, varsayılanı Stale 
+    # Bir çekme isteği kapatıldığında uygulanacak etiket. 
+    close-pr-label: # isteğe bağlı 
+    # Bir çekme isteğinin bayat olarak işaretlenmekten muaf olduğu anlamına gelen etiketler. Birden fazla etiketi virgülle ayırın (örn. "label1,label2"). 
+    exempt-pr-labels: # isteğe bağlı, varsayılanı 
+    # Bir sorun veya çekme isteğinin bayat olarak işaretlenmekten muaf olduğu anlamına gelen kilometre taşları. Birden fazla kilometre taşını virgülle ayırın (örn. "milestone1,milestone2"). 
+    exempt-milestones: # isteğe bağlı, varsayılanı 
+    # Bir sorunun bayat olarak işaretlenmekten muaf olduğu anlamına gelen kilometre taşları. Birden fazla kilometre taşını virgülle ayırın (örn. "milestone1,milestone2"). Yalnızca sorunlarla ilgili olarak "exempt-milestones" seçeneğini geçersiz kıl. 
+    muafiyet-sorun-kilometretaşları: # isteğe bağlı, varsayılan 
+    # Bir çekme isteğinin bayat olarak işaretlenmekten muaf olduğu anlamına gelen kilometretaşları. Birden fazla kilometretaşını virgülle ayırın (örn. "kilometretaşı1,kilometretaşı2"). Yalnızca çekme istekleriyle ilgili olarak "muafiyet-kilometretaşları" seçeneğini geçersiz kılın. 
+    muafiyet-pr-kilometretaşları: # isteğe bağlı, varsayılan 
+    # Tüm sorunları ve kilometretaşları olan çekme isteklerini bayat olarak işaretlenmekten muaf tutun. Varsayılan olarak false'dur. 
+    muafiyet-all-kilometretaşları: # isteğe bağlı, varsayılan 
+    # Tüm kilometretaşları olan çekme isteklerini bayat olarak işaretlenmekten muaf tutun. Yalnızca sorunlarla ilgili olarak "muafiyet-all-kilometretaşları" seçeneğini geçersiz kılın. 
+    muafiyet-all-kilometretaşları: # isteğe bağlı, varsayılan 
+    # Tüm kilometretaşları olan çekme isteklerini bayat olarak işaretlenmekten muaf tutun. Yalnızca çekme istekleriyle ilgili olarak "muafiyet-all-kilometretaşları" seçeneğini geçersiz kılın. 
+    muafiyet-all-pr-kilometretaşları: # isteğe bağlı, varsayılan 
+    # Yalnızca bu etiketlerin tümüne sahip sorunlar veya çekme istekleri bayatsa kontrol edilir. Varsayılan olarak `` (disabled) ve virgülle ayrılmış bir etiket listesi olabilir. 
+    only-labels: # isteğe bağlı, varsayılan 
+    # Yalnızca bu etiketlerden en az birine sahip sorunlar veya çekme istekleri eskiyse kontrol edilir. Varsayılan olarak `` (disabled) ve virgülle ayrılmış bir etiket listesi olabilir. 
+    any-of-labels: # isteğe bağlı, varsayılan 
+    # Yalnızca bu etiketlerden en az birine sahip sorunlar veya çekme istekleri eskiyse kontrol edilir. Varsayılan olarak `` (disabled) ve virgülle ayrılmış bir etiket listesi olabilir. Yalnızca sorunlarla ilgili olarak "any-of-labels" seçeneğini geçersiz kıl. 
+    any-of-issue-labels: # isteğe bağlı, varsayılan 
+    # Yalnızca bu etiketlerden en az birine sahip çekme istekleri eskiyse kontrol edilir. Varsayılan olarak `` (disabled) ve virgülle ayrılmış bir etiket listesi olabilir.Sadece çekme istekleriyle ilgili olarak "herhangi bir etiket" seçeneğini geçersiz kılın.
+    any-of-pr-labels: # isteğe bağlı, varsayılan 
+    # Yalnızca bu etiketlerin tümüne sahip sorunlar eskiyse kontrol edilir. Varsayılanı `[]` (devre dışı) ve virgülle ayrılmış bir etiket listesi olabilir. Yalnızca sorunlarla ilgili olarak "only-labels" seçeneğini geçersiz kıl. 
+    only-issue-labels: # isteğe bağlı, varsayılan 
+    # Yalnızca bu etiketlerin tümüne sahip çekme istekleri eskiyse kontrol edilir. Varsayılanı `[]` (devre dışı) ve virgülle ayrılmış bir etiket listesi olabilir. Yalnızca çekme istekleriyle ilgili olarak "only-labels" seçeneğini geçersiz kıl. 
+    only-pr-labels: # isteğe bağlı, varsayılan 
+    # Hız sınırlamasını kontrol etmek için kullanılan, çalıştırma başına maksimum işlem sayısı (GitHub API CRUD ile ilgili). 
+    operations-per-run: # isteğe bağlı, varsayılanı 30 
+    # Güncellendiklerinde veya yorumlandıklarında sorunlardan ve çekme isteklerinden eski etiketleri kaldırın. 
+    remove-stale-when-updated: # isteğe bağlı, varsayılan değeri true 
+    # Güncellendiklerinde veya yorumlandıklarında sorunlardan eski etiketleri kaldır. Yalnızca sorunlarla ilgili olarak "remove-stale-when-updated" seçeneğini geçersiz kıl. 
+    remove-issue-stale-when-updated: # isteğe bağlı, varsayılan değeri true 
+    # Güncellendiklerinde veya yorumlandıklarında çekme isteklerinden eski etiketleri kaldır. Yalnızca çekme istekleriyle ilgili olarak "remove-stale-when-updated" seçeneğini geçersiz kıl. 
+    remove-pr-stale-when-updated: # isteğe bağlı, varsayılan değeri 
+    # Canlı sorunlar üzerinde herhangi bir işlem yapmadan işlemciyi hata ayıklama modunda çalıştır. 
+    debug-only: # isteğe bağlı, varsayılan değeri false 
+    # Sorunları veya çekme isteklerini alma sırası. Varsayılanı azalan şekilde false'dur. 
+    ascending: # isteğe bağlı, varsayılan değeri false 
+    # Eski bir çekme isteğini kapattıktan sonra git dalını sil. 
+    delete-branch: # isteğe bağlı, varsayılan false 
+    # Daha önce oluşturulan sorun/çekme isteğindeki bayat eylemini atlamak için kullanılan tarih (ISO 8601 veya RFC 2822). 
+    start-date: # isteğe bağlı, varsayılan 
+    # Bir sorunu veya çekme isteğini bayat olarak işaretlenmekten muaf tutan görevliler. Birden fazla görevliyi virgülle ayırın (örn. "user1,user2"). 
+    exempt-assignees: # isteğe bağlı, varsayılan 
+    # Bir sorunu bayat olarak işaretlenmekten muaf tutan görevliler. Birden fazla görevliyi virgülle ayırın (örn. "user1,user2"). Yalnızca sorunlarla ilgili olarak "exempt-assignees" seçeneğini geçersiz kılın. 
+    exempt-issue-assignees: # isteğe bağlı, varsayılan 
+    # Bir çekme isteğini bayat olarak işaretlenmekten muaf tutan görevliler. Birden fazla görevliyi virgülle ayırın (örn. "user1,user2"). Yalnızca çekme istekleriyle ilgili olarak "exempt-assignees" seçeneğini geçersiz kılın. 
+    exempt-pr-assignees: # isteğe bağlı,varsayılan 
+    # Tüm sorunların ve atananlarla birlikte gelen çekme isteklerinin bayat olarak işaretlenmesini engeller. Varsayılan olarak false olur.
+    exemption-all-assignees: # isteğe bağlı, varsayılan değer false 
+    # Atanmış kişileri olan tüm sorunların bayat olarak işaretlenmesini engeller. Yalnızca sorunlarla ilgili olarak "exempt-all-assignees" seçeneğini geçersiz kıl. 
+    exemption-all-issue-assignees: # isteğe bağlı, varsayılan değer false 
+    # Atanmış kişileri olan tüm çekme isteklerinin bayat olarak işaretlenmesini engeller. Yalnızca çekme istekleriyle ilgili olarak "exempt-all-assignees" seçeneğini geçersiz kıl. 
+    exemption-all-pr-assignees: # isteğe bağlı, varsayılan değer 
+    # Taslak çekme isteklerinin bayat olarak işaretlenmesini engeller. Varsayılan değer false. 
+    exemption-draft-pr: # isteğe bağlı, varsayılan değer false 
+    # Bayat iş akışıyla ilgili olarak sonunda bazı istatistikler görüntüler (yalnızca günlükler etkinleştirildiğinde). 
+    enable-statistics: # isteğe bağlı, varsayılan değer true 
+    # Bir sorun veya çekme isteği bayat olmaktan çıktığında eklenecek virgülle ayrılmış etiket listesi. 
+    labels-to-add-when-unstale: # isteğe bağlı, varsayılan 
+    # Bir sorun veya çekme isteği eskidiğinde kaldırılacak etiketlerin virgülle ayrılmış listesi. 
+    labels-to-remove-when-stale: # isteğe bağlı, varsayılan 
+    # Bir sorun veya çekme isteği eskidiğinde kaldırılacak etiketlerin virgülle ayrılmış listesi. 
+    labels-to-remove-when-unstale: # isteğe bağlı, varsayılan 
+    # Herhangi bir güncelleme (güncelleme/yorum) sorunlar ve çekme isteklerindeki eski boşta kalma süresini sıfırlayabilir. 
+    ignore-updates: # isteğe bağlı, varsayılan false 
+    # Herhangi bir güncelleme (güncelleme/yorum) sorunlar ve çekme isteklerindeki eski boşta kalma süresini sıfırlayabilir. Yalnızca sorunlarla ilgili olarak "ignore-updates" seçeneğini geçersiz kılın. 
+    ignore-issue-updates: # isteğe bağlı, varsayılan 
+    # Herhangi bir güncelleme (güncelleme/yorum) çekme isteklerindeki eski boşta kalma süresini sıfırlayabilir. Yalnızca çekme istekleriyle ilgili olarak "ignore-updates" seçeneğini geçersiz kılın. 
+    ignore-pr-updates: # isteğe bağlı, varsayılan değer 
+    # Yalnızca atanan kişiyle ilgili sorunlar veya çekme istekleri otomatik olarak bayat olarak işaretlenecektir. 
+    include-only-assigned: # isteğe bağlı, varsayılan değer false
+          
