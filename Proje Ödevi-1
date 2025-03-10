@@ -1,0 +1,220 @@
+---
+title: "R Notebook"
+author: "Omer Cetin"
+date: "08.03.2025"
+output: html_notebook
+---
+
+```{r}
+library(readxl)
+veri <- read_excel("veri.xlsx")
+View(veri)
+is.data.frame(veri)
+veri
+```
+
+## Veri temizleme ve keşifsel veri analizi
+
+Veri kümesinin özet istatistiklerine bakalım:
+
+```{r, echo=FALSE}
+# Özet istatistikleri
+summary(veri)
+```
+
+Veri kümesindeki eksik bölümlerin tespit edilmesi önemli bir adımdır. Eksik veri olup olmadığını kontrol edelim:
+
+```{r, echo=FALSE}
+# Eksik değer kontrolü
+sum(is.na(veri))
+```
+
+Bu sonuç veri kümesinde eksik değer olmadığı göstermektedir. Veri kümesinin boyutlarına bakalım:
+
+```{r, echo=FALSE}
+# Veri setinin boyutları
+dim(veri)
+```
+
+Bu sonuçtan anlaşıldığı kadarıyla veri kümesi 12 satır ve 8 sütundan (değişken) oluşmaktadır. Veri kümesinin yapısını inceleyelim:
+
+```{r, echo=FALSE}
+# Veri yapısının incelemesi
+str(veri)
+```
+Bu yapıdan anlaşıldığı kadarıyla veri kümesindeki değişkenlerin türleri ve yapıları hakkında bilgi edinebiliyoruz. Örneğin, `ay` değişkeni tamsayı, `bakim_talep_adedi` değişkeni ve diğerleri de tam sayı türündedir."Acil_Bakim_Talep_Orani" değişkeni ondalıklı sayı türündedir.
+
+
+```{r, echo=TRUE}
+# Tatil ve Vardiyalarda Talep Adedi (yeni değişken oluşturma)
+veri <- veri %>%
+  mutate(tatil = `Bakim Talep Adedi` - `Calisma Gununde Talep Adedi`)
+```
+
+
+## Görselleştirme
+
+### Gunduz Vardiyasi Talep Adedi ve Acil Bakım Talep Adedi İlişkisi
+
+Veri kümesindeki iki değişkeni, Gunduz Vardiyasi Talep Adedi ve Acil Bakım Talep Adedini zaman serisi grafiği ile gösterelim:
+
+```{r, echo=FALSE}
+# Bakım Talep Trendi
+ggplot(veri, aes(x = Ay)) +
+  geom_line(aes(y = `Gunduz Vardiyasinda Talep Adedi`, color = "Bakım Talep Adedi (Adet)"), linewidth = 1) +
+  geom_line(aes(y = `Acil Bakim Talep Adedi`, color = "Acil Bakım Talep Adedi (Adet)"), linewidth = 1) +
+  scale_color_manual(values = c("Bakım Talep Adedi (Adet)" = "blue", "Acil Bakım Talep Adedi (Adet)" = "red")) +
+  labs(title = "Talep Trendi (Ocak-Aralık)",
+       x = "Ay",
+       y = "Adet",
+       color = "Gosterge") +
+  theme_minimal() +
+  scale_x_continuous(breaks = 1:12) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
+```
+
+Bu grafikte 2024 yılı aylık bazda toplam gündüz vardiyasındaki bakım talepleri ve acil bakım talepleri trendlerini görebiliriz. Her ikisi de adet cinsinden gösterilmiştir.
+
+### Acil Bakım Talep Oranı
+
+Şimdi de Acil Bakım Talep oranı zaman serisi grafiğini çizelim:
+
+```{r, echo=FALSE}
+# Acil Bakim Talep Orani zaman serisi grafiği
+ggplot(veri, aes(x = Ay, y = `Acil Bakim Talep Orani`)) +
+  geom_line(color = "darkblue", linewidth = 1) +
+  geom_point(color = "darkblue", size = 2) +
+  geom_text(aes(label = `Acil Bakim Talep Orani`), vjust = -0.8) +
+  labs(title = "Acil Bakım Talep Oranı (2024)",
+       x = "Ay",
+       y = "Acil Bakım Talep Orani (%)") +
+  theme_minimal() +
+  scale_x_continuous(breaks = 1:12) +
+  theme(axis.text.x = element_text(angle = 0, hjust = 1))
+
+```
+Bu grafikte 2024 yılı Acil Bakim Talep Oranı zaman serisi gösterilmektedir. Acil Talep Orani yüzde cinsinden gösterilmiştir.
+
+### Çalışma ve tatil günü  talep sayıları
+ 
+```{r, echo=FALSE}
+# Çalışma Gunu ve Tatillerdeki Talep Sayilari
+veri2 <- veri %>%
+  select(Ay, `Calisma Gununde Talep Adedi`, `Tatil ve Vardiyalarda Talep Adedi`) %>%
+  pivot_longer(cols = c(`Calisma Gununde Talep Adedi`,`Tatil ve Vardiyalarda Talep Adedi`),
+               names_to = "tatil",
+               values_to = "adet")
+  
+ggplot(veri2, aes(x = Ay, y = adet, fill = tatil)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_fill_manual(values = c("Calisma" = "green", "tatil" = "orange"),
+                   labels = c("calisma", "tatil")) +
+  labs(title = "Bakım Talepleri (1-12)",
+       x = "Ay",
+       y = "Adet",
+       fill = "Calisma") +
+  theme_minimal() +
+  scale_x_continuous(breaks = 1:12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Bu grafiklerde Bakım Taleplerinin çalışma günlerinde ve tatil günlerindeki dengesi gösterilmektedir. Adet cinsinden gösterilmiştir. Renk ayrışmasını maalesef yapamadım.Hatayı gösterebilmek adına Örnek olması açısından bu şekilde bıraktım.
+
+### Acil Bakım ve Acil Statik Talep İlişkisi
+
+```{r, message=FALSE,echo=FALSE}
+# Acil Bakim ve Acil Statik Talep İlişkisi
+ggplot(veri, aes(x = `Acil Bakim Talep Adedi`, y = `Acil Statik Talep Adedi`)) +
+  geom_point(aes(size = Ay, color = Ay), alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, color = "red", linetype = "dashed") +
+  scale_color_gradient(low = "blue", high = "red") +
+  labs(title = "Acil Bakım Statik Bakim İliskisi (2024)",
+       x = "Adet",
+       y = "Adet",
+       size = "Ay",
+       color = "Ay") +
+  theme_minimal()
+```
+Bu grafikte Acil Bakım ve Acil Statik Bakım arasındaki ilişkiyi gösteren bir scatter plot çizilmiştir. Acil Bakım Adet cinsinden, Acil Statik Bakım adet cinsinden gösterilmiştir. Ayrıca yıllar renk ve boyut olarak gösterilmiştir.
+
+## Korelasyon Analizi
+
+require(corrplot)
+
+```{r, echo=FALSE}
+# Degiskenler arasi korelasyon analizi
+talep_korelasyon <- cor(veri[, -1])
+corrplot(veri, method = "circle", type = "upper", 
+         tl.col = "black", tl.srt = 45, addCoef.col = "black", 
+         number.cex = 0,7, title = "Bakim Talepleri Korelasyon Matrisi")
+```
+Bu grafikte bakım talepleri arasındaki korelasyon ilişkileri gösterilmek istenmiştir. Korelasyon katsayıları -1 ile 1 arasında değişmektedir. Pozitif korelasyonlar mavi renkte, negatif korelasyonlar kırmızı renkte gösterilmek istenmiştir fakat sürekli aynı hata alınmıştır.
+
+## Regresyon Analizi
+
+```{r, echo=FALSE}
+# Talepleri etkileyen faktörler için regresyon modeli
+talep_model <- lm(veri ~ Calisma_Gununde_Talep_Adedi + Tatil_ve_Vardiyalarda_Talep_Adedi ,data = veri)
+
+# Model sonuçlarını görüntüleme
+summary(acil_model)
+
+# Model tahminlerini görselleştirme
+Bakim_Talep_Adedi$Acil_Bakim_Talep_Orani <- predict(talep_model)
+
+ggplot(veri, aes(x = ay)) +
+  geom_line(aes(y = `Acil Bakim Talep Orani`, color = "Gerçek Aciliyet"), linewidth = 1) +
+  geom_line(aes(y = `Acil Bakim Talep Orani`, color = "talep model"), linewidth = 1, linetype = "dashed") +
+  scale_color_manual(values = c("Gerçek Aciliyet" = "blue", "talep model" = "red")) +
+  labs(title = "Aciliyet: Gerçek Aciliyet vs. talep model",
+       x = "Ay",
+       y = "Acil Bakim Talep Orani (%)",
+       color = "") +
+  theme_minimal() +
+  scale_x_continuous(breaks = 1:12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Bu analizde talepleri etkileyen faktörler için bir regresyon modeli oluşturulmuştur. Modelde çalışma günü talepleri, tatil talepleri ve acil talepler dengesi bağımsız değişkenler olarak kullanılmıştır. Modelin anlamlılığı ve katsayıları hakkında bilgi veren bir özet tablo oluşturulmuştur. Ayrıca modelin gerçek değerlerle karşılaştırılması için bir grafik çizilmiştir. Ama şu an başarısız oldu.
+
+## Zaman Serisi Analizi
+
+```{r, echo=FALSE}
+# Tatilde acil oranı hesaplama
+veri <- veri %>%
+  mutate(tatil = c(NA, diff(`Tatil`) / `Gunduz Vardiyasinda Talep Adedi`[-length(`Gunduz`)] * 100))
+
+# Bakim Talep Oranı
+ggplot(veri[-1,], aes(x = ay, y = tatil)) +
+  geom_line(color = "darkgreen", size = 1) +
+  geom_point(color = "darkgreen", size = 3) +
+  geom_text(aes(label = round(tatil, 1)), vjust = -0.8) +
+  labs(title = "Bakim Talep Oranları (2024))",
+       x = "Ay",
+       y = "Talep Oranı (%)") +
+  theme_minimal() +
+  scale_x_continuous(breaks = 1:12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Bu analizde 2024 Talep Oranları hesaplanmış ve zaman serisi grafiği çizilmek istenmiştir. Talep oranı yüzde cinsinden gösterilmiştir.
+Fakat hata alındığından ilerlenememiştir.
+
+## Sonuçlar ve Yorumlar
+
+Bu çalışmada 2024 yılındaki Ocak ayından Aralık ayına kadar Bakım Talep Adetleri incelenmiştir. Veri seti temizlenmiş, keşifsel veri analizi yapılmış, görseller oluşturulmuştur. Ayrıca acil bakim talepleri, tatil dönemi talepler ve calisma günündeki talepler gibi faktörlerin bakım talepleri üzerindeki etkisi regresyon analizi ile incelenmiştir. Sonuçlar ve yorumlar aşağıda özetlenmiştir:
+
+```{r, echo=FALSE}
+# Özet tablo oluşturma
+ozet_tablo <- veri %>%
+  select(Ay, `Bakim Talep Adedi`, `Tatil ve Vardiyalarda Talep Adedi`, `Acil Bakim Talep Orani`, `Acil Bakim Talep Adedi`, `Calisma Gununde Talep Adedi`) %>%
+  rename("Ay"=Ay,
+         "Bakim Talep Adedi (Adet)" = `Bakim Talep Adedi`,
+         "Acil Bakim Talep Orani (%)" = `Acil Bakim Talep Orani`
+
+kable(ozet_tablo, caption = "Bakim Talepleri (2024)")
+```
+
+Bu tabloda 2024 yıllarında bakım talepleri özetlenmiştir. Bakım Talep adedi, tatil ve vardiyalardaki talep adedi, acil bakım talep adedi, acil bakım talep oranı gibi önemli göstergelerin yıl içi aylara göre değişimleri gösterilmiştir. Bu verilerin analizi ve yorumlanması bakım taleplerinin yönetimi ve bakım optimizasyonu konusunda önemli bir rol oynayabilir.
+
+
