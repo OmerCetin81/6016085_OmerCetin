@@ -1,0 +1,224 @@
+install.packages("tidyverse")
+install.packages("lubridate")
+install.packages("forecast")
+install.packages("ggplot2")
+
+# Proje Ödevi : COVID-19 Pandemisi: Türkiye'deki Yayılım Analizi ve Tahmin Modeli
+# Kütüphaneleri Yükleme
+library(tidyverse)
+library(lubridate)
+library(forecast)
+library(ggplot2)
+
+# Kütüphaneleri yükleme
+install.packages(c("tidyverse", "lubridate", "ggplot2", "dplyr", "corrplot", "forecast", "sf", "ggmap"))
+
+library(tidyverse)
+library(lubridate)
+library(ggplot2)
+library(dplyr)
+library(corrplot)
+library(forecast)
+library(sf)     # Harita analizi için
+library(ggmap)  # Harita görselleştirme için
+library(readxl) # Excel veri setleri için
+
+# Veri Setini İndirme ve Yükleme
+# Bölgelere Göre Covid19 Vaka Sayıları
+
+library(readxl)
+Covid_vakalar_bolgesel <- read_excel("C:/Midterm/veri_seti/Covid_vakalar_bolgesel.XLSX")
+View(Covid_vakalar_bolgesel)
+
+library(readxl)
+Covid_vakalar_bolgesel_r <- read_excel("C:/Midterm/veri_seti/Covid_vakalar_bolgesel_r.XLSX")
+View(Covid_vakalar_bolgesel_r)
+
+
+# Veriyi inceleme
+head(Covid_vakalar_bolgesel_r)
+
+# Veriyi inceleme
+head(Covid_vakalar_bolgesel)
+
+# Bölgesel toplam vaka sayısını hesaplama
+vakalar_bolge <- Covid_vakalar_bolgesel %>%
+  group_by(`Bati Marmara`,`Dogu Marmara`,`Bati Anadolu`,`Bati Karadeniz`,`Orta Anadolu`,`Ortadogu Anadolu`,`Kuzeydogu Anadolu`,istanbul,ege) %>%
+  summarise(Toplam_Vaka = sum(TOPLAM))
+
+# Bölgelere göre vaka sayısı bar chart
+ggplot(Covid_vakalar_bolgesel_r, aes(x=reorder(Bolge, -vakalar_bolge), y=`Vaka Sayisi`, fill=Tarih)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  labs(title="Bölgelere Göre Toplam COVID-19 Vaka Sayısı",
+       x="Tarih", y="Toplam Vaka Sayısı") +
+  theme_minimal()
+
+# Veriyi inceleyelim
+head(Covid_vakalar_bolgesel_r)
+summary(Covid_vakalar_bolgesel_r)
+
+# Zaman serisi formatına çevir (covid)
+Covid_vakalar_bolgesel_r<- ts(Covid_vakalar_bolgesel, start = c(2020,1), frequency = 12)  # 2020 başlar, aylık
+
+# En uygun ARIMA modelini belirle
+arima_model <- auto.arima(Covid_vakalar_bolgesel)
+
+# Gelecek 10 yıl (120 ay) için tahmin yap
+forecast_values <- forecast(arima_model, h = 120)
+
+# Tahminleri görselleştir
+autoplot(forecast_values) +
+  ggtitle("İstanbul COVID-19 Vaka Sayısı 10 Yıllık Tahmini (2030)") +
+  xlab("Yıllar") + ylab("Vaka Sayısı") +
+  theme_minimal()
+
+# Yaş ve Cinsiyete Göre Covid19 Vaka Sayıları (100.000 kişiye göre)
+library(readxl)
+Covid_vakalar_yas_cinsiyet <- read_excel("C:/Midterm/veri_seti/Covid_vakalar_yas_cinsiyet.XLSX")
+View(Covid_vakalar_yas_cinsiyet)
+
+str(Covid_vakalar_yas_cinsiyet)  # Değişken türlerini gösterir
+head(Covid_vakalar_yas_cinsiyet)  # İlk birkaç satırı gösterir
+summary(Covid_vakalar_yas_cinsiyet)  # Genel istatistikleri gösterir
+
+
+# Grafik oluşturma Erkek
+ggplot(Covid_vakalar_yas_cinsiyet, aes(x=`Yas Grubu`, y=Erkek, fill=`Yas Grubu`)) +
+  geom_bar(stat="identity", position="dodge") +
+  theme_minimal() +
+  labs(title="Yaş Gruplarına Göre Erkek ve Kadın COVID-19 Vakaları", 
+       x="Yaş Grubu", 
+       y="Vaka Oranı") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Eksen yazılarını döndürme
+
+# Grafik oluşturma Kadın
+ggplot(Covid_vakalar_yas_cinsiyet, aes(x=`Yas Grubu`, y=Kadin, fill=`Yas Grubu`)) +
+  geom_bar(stat="identity", position="dodge") +
+  theme_minimal() +
+  labs(title="Yaş Gruplarına Göre Erkek ve Kadın COVID-19 Vakaları", 
+       x="Yaş Grubu", 
+       y="Vaka Oranı") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Eksen yazılarını döndürme
+
+Covid_vakalar_yas_cinsiyet %>%
+  mutate(Ortalama_Vaka = (Erkek + Kadin) / 2) %>%
+  ggplot(aes(x=`Yas Grubu`, y=Ortalama_Vaka)) +
+  geom_line(group=1, color="blue", size=1) +
+  geom_point(size=3, color="red") +
+  theme_minimal() +
+  labs(title="Yaş Gruplarına Göre Ortalama COVID-19 Vakaları", 
+       x="Yaş Grubu", 
+       y="Ortalama Vaka Sayısı")
+
+# Yaş ve Cinsiyet Verilerini Düzenleme
+library(ggplot2)
+
+# Yaş ve Cinsiyete Göre Covid19 Vaka Sayıları
+data <- data.frame(
+  Yas_Grubu = c("2 yas alti", "2-4 yas", "5-14 yas", "15-24 yas", 
+                "25-49 yas", "50-64 yas", "65-79 yas", "80 yas ustu"),
+  Erkek = c(0.00063, 0.00074, 0.00076, 0.00193, 0.00342, 0.00306, 0.00288, 0.00383),
+  Kadin = c(0.00057, 0.00069, 0.00081, 0.00227, 0.00293, 0.00277, 0.00265, 0.00325)
+)
+
+# Uzun Format (pivot) için veri çerçevesini düzenleme
+data_long <- data %>%
+  pivot_longer(cols = c(Erkek, Kadin), 
+               names_to = "Cinsiyet", 
+               values_to = "Vaka_Orani")
+
+# Grafik Çizimi
+ggplot(data_long, aes(x = Yas_Grubu, y = Vaka_Orani, fill = Cinsiyet)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Yaş Grubuna Göre Covid-19 Vaka Oranı (100.000 Kişiye Göre)", 
+       x = "Yaş Grubu", y = "Vaka Oranı") +
+  scale_fill_manual(values = c("blue", "pink")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# 2002 ve 2024 Verilerine Göre Hastane Sayıları
+library(readxl)
+Hastane_sayilari <- read_excel("C:/Midterm/veri_seti/Hastane_sayilari.XLSX")
+View(Hastane_sayilari)
+
+# Hastane Sayıları Verisi
+hastane_verisi <- data.frame(
+  Yil = c(2002, 2024),
+  Hastane_Sayisi = c(774, 984)
+)
+
+# Grafik Çizimi
+ggplot(hastane_verisi, aes(x = Yil, y = Hastane_Sayisi)) +
+  geom_line(color = "blue", size = 1.2) +  # Çizgi
+  geom_point(color = "red", size = 4) +  # Veri noktaları
+  labs(title = "Türkiye'deki Hastane Sayısının Değişimi (2002-2024)", 
+       x = "Yıl", y = "Hastane Sayısı") +
+  theme_minimal()
+
+# Hastane Sayıları 2002 den bugüne yaklaşık %27 artış göstermiş.
+
+# 2019 ve 2024 Verilerine Göre 100.000 kişiye düşen doktor sayısı
+library(readxl)
+doktor_sayisi <- read_excel("C:/Midterm/veri_seti/doktor_sayisi.XLSX")
+View(doktor_sayisi)
+
+# Doktor Sayısı Verisi
+doktor_verisi <- data.frame(
+  Yil = c(2019,2020,2021,2022,2023,2024),
+  Doktor_Sayisi_100000 = c(228,232,227,236,241,245)  
+)
+
+# Grafik Çizimi
+ggplot(doktor_verisi, aes(x = Yil, y = Doktor_Sayisi_100000)) +
+  geom_line(color = "green", size = 1.2) +  # Çizgi
+  geom_point(color = "orange", size = 4) +  # Veri noktaları
+  labs(title = "Türkiye'deki Kişi Başına Düşen Doktor Sayısının Değişimi (2019-2024)", 
+       x = "Yıl", y = "Kişi Başına Düşen Doktor Sayısı (100,000 kişi başına)") +
+  theme_minimal()
+
+# 100.000 kişiye düşen doktor sayıları da 2021 yılında covid 
+#sebepli ortalama da düşüş olsa da 2019 'dan günümüze sürekli 
+#bir artış eğiliminde.
+
+# Yıllık Nüfus Artış Hızı
+library(readxl)
+yillik_nufus_artisi <- read_excel("C:/Midterm/veri_seti/yillik_nufus_artisi.xls")
+View(yillik_nufus_artisi)
+
+# Verinin genel yapısını inceleyelim
+View(yillik_nufus_artisi)
+
+# Veri setini hazırlama
+yillik_nufus_artisi <- yillik_nufus_artisi %>%
+  select(Yil, `Yillik Nufus Artisi`)  # Yıl ve Artış Hızı sütunlarını seçiyoruz
+
+# Grafik oluşturma
+ggplot(yillik_nufus_artisi, aes(x = Yil, y = `Yillik Nufus Artisi`)) +  # Yil ve Artis_Hizi sütunlarını kullanalım
+  geom_line(color = "green", size = 1.2) +  # Çizgi
+  geom_point(color = "red", size = 4) +  # Veri noktaları
+  labs(title = "Türkiye'nin Yıllık Nüfus Artış Hızı", 
+       x = "Yıl", y = "Yillik Nufus Artısi (%)") +
+  theme_minimal()
+
+# Gerekli kütüphaneleri yükleyelim
+install.packages("forecast")
+library(forecast)
+
+# Yıllara Göre Hastane Sayıları
+years <- c(2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2021,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024)
+hospital_data <- c(772,772,772,773,775,779,780,782,789,800,801,806,807,820,837,889,900,920,948,968,977,984)
+
+# Veriyi zaman serisine dönüştürme
+hospital_ts <- ts(hospital_data, start = 2002, frequency = 1)
+
+# ARIMA modelini oluşturma (p, d, q) parametreleri seçilir
+model <- auto.arima(hospital_ts)
+
+# Gelecekteki 5 yıl için tahmin yapma
+forecast_values <- forecast(model, h = 10)
+
+# Tahmin sonuçlarını görselleştirme
+plot(forecast_values, main = "Hastane Sayısı Tahmini (2024-2034)", xlab = "Yıl", ylab = "Hastane Sayısı")
+
+# Hastane Sayıları 2002 den 2024'e 22 yılda yaklaşık %27 artış göstermiş.
